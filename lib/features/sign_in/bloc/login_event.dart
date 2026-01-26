@@ -19,6 +19,10 @@ final class LoginEmailSubmitted extends LoginEvent {
   List<Object?> get props => [email, password];
 }
 
+final class LoginPasswordToggled extends LoginEvent {
+  const LoginPasswordToggled();
+}
+
 /// Event triggered when user initiates Google sign-in.
 final class LoginGoogleSubmitted extends LoginEvent {
   const LoginGoogleSubmitted();

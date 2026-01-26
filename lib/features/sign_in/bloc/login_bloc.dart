@@ -9,25 +9,38 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc({AuthService? authService})
     : _authService = authService ?? AuthService(),
-      super(const LoginInitial()) {
+      super(const LoginState()) {
     on<LoginEmailSubmitted>(_onEmailSubmitted);
     on<LoginGoogleSubmitted>(_onGoogleSubmitted);
+    on<LoginPasswordToggled>(_onPasswordToggled);
+  }
+
+  Future<void> _onPasswordToggled(
+    LoginPasswordToggled event,
+    Emitter<LoginState> emit,
+  ) async {
+    emit(state.copyWith(isPasswordVisible: !state.isPasswordVisible));
   }
 
   Future<void> _onEmailSubmitted(
     LoginEmailSubmitted event,
     Emitter<LoginState> emit,
   ) async {
-    emit(const LoginLoading());
+    emit(state.copyWith(isLoading: true));
 
     try {
       await _authService.signInWithEmail(
         email: event.email,
         password: event.password,
       );
-      emit(const LoginSuccess());
+      emit(state.copyWith(isLoading: false));
     } on Exception catch (e) {
-      emit(LoginFailure(e.toString().replaceFirst('Exception: ', '')));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          error: e.toString().replaceFirst('Exception: ', ''),
+        ),
+      );
     }
   }
 
@@ -35,17 +48,27 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginGoogleSubmitted event,
     Emitter<LoginState> emit,
   ) async {
-    emit(const LoginLoading());
+    emit(state.copyWith(isLoading: true));
 
     try {
       final success = await _authService.signInWithGoogle();
       if (success) {
-        emit(const LoginSuccess());
+        emit(state.copyWith(isLoading: false));
       } else {
-        emit(const LoginFailure('Google sign-in was cancelled'));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            error: 'Google sign-in was cancelled',
+          ),
+        );
       }
     } on Exception catch (e) {
-      emit(LoginFailure(e.toString().replaceFirst('Exception: ', '')));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          error: e.toString().replaceFirst('Exception: ', ''),
+        ),
+      );
     }
   }
 }

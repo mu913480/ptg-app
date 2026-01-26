@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/config/app_config.dart';
-import 'package:ptg/config/app_theme.dart';
+import 'package:ptg/config/theme.dart';
+import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
+import 'package:ptg/network/auth_service.dart';
 import 'package:ptg/utils/routes/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,12 +27,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: AppRouter.getRouter(context),
-      title: 'Pakistan Tourism Guide',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+    return MultiBlocProvider(
+      providers: [BlocProvider(create: (context) => LoginBloc())],
+      child: MaterialApp.router(
+        routerConfig: AppRouter.getRouter(context),
+
+        title: 'Pakistan Tourism Guide',
+        theme: ThemeData(colorScheme: MaterialTheme.lightScheme()),
+        // darkTheme: ThemeData(colorScheme: MaterialTheme.darkScheme()),
+        themeMode: ThemeMode.system,
+      ),
     );
   }
 }

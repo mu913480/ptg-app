@@ -1,49 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:ptg/config/app_theme.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 import 'package:ptg/features/sign_in/bloc/login_event.dart';
 import 'package:ptg/features/sign_in/bloc/login_state.dart';
 import 'package:ptg/utils/routes/routes.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
 
-  @override
-  State<SignInScreen> createState() => _SignInScreenState();
-}
-
-class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  final formkey = GlobalKey<FormState>();
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _onLoginPressed() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
+  void _onLoginPressed(BuildContext context) {
+    if (formkey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+      context.read<LoginBloc>().add(
+        LoginEmailSubmitted(email: email, password: password),
       );
-      return;
     }
-
-    context.read<LoginBloc>().add(
-      LoginEmailSubmitted(email: email, password: password),
-    );
   }
 
-  void _onGooglePressed() {
+  void _onGooglePressed(BuildContext context) {
     context.read<LoginBloc>().add(const LoginGoogleSubmitted());
   }
 
@@ -51,16 +31,9 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
-        if (state is LoginSuccess) {
-          context.go(AppRoutes.tours);
-        } else if (state is LoginFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error), backgroundColor: Colors.red),
-          );
-        }
+       
       },
       child: Scaffold(
-        backgroundColor: AppTheme.primaryColor,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -77,12 +50,14 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildLoginForm(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
+      child: Form(
+        key: formkey,
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -90,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Text(
             'Login ',
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: AppTheme.textPrimaryColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 32),
@@ -99,12 +74,28 @@ class _SignInScreenState extends State<SignInScreen> {
           _buildInputField(
             label: 'Email or username',
             controller: _emailController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email or username';
+              }
+              return null;
+            },
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 16),
 
           // Password field
-          _buildPasswordField(),
+          _buildPasswordField(
+            context,
+            'Password',
+            _passwordController,  
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
           const SizedBox(height: 24),
 
           // Login button
@@ -126,10 +117,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         )
                       : Text(
                           'Login',
-                          style: GoogleFonts.oswald(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                 ),
               );
@@ -145,8 +138,8 @@ class _SignInScreenState extends State<SignInScreen> {
               },
               child: Text(
                 'Forgot Password?',
-                style: GoogleFonts.roboto(
-                  color: AppTheme.textSecondaryColor,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 14,
                 ),
               ),
@@ -162,8 +155,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'Or continue with',
-                  style: GoogleFonts.roboto(
-                    color: AppTheme.textSecondaryColor,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
                   ),
                 ),
@@ -183,8 +176,8 @@ class _SignInScreenState extends State<SignInScreen> {
             children: [
               Text(
                 "Don't have an account? ",
-                style: GoogleFonts.roboto(
-                  color: AppTheme.textSecondaryColor,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 14,
                 ),
               ),
@@ -194,8 +187,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 },
                 child: Text(
                   'create account',
-                  style: GoogleFonts.roboto(
-                    color: AppTheme.secondaryColor,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
@@ -219,9 +212,9 @@ class _SignInScreenState extends State<SignInScreen> {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(color: AppTheme.textSecondaryColor),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -229,9 +222,9 @@ class _SignInScreenState extends State<SignInScreen> {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppTheme.surfaceColor,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -244,25 +237,31 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(
+    BuildContext context,
+    String label,
+    TextEditingController controller,
+    String? Function(String?)? validator,
+    bool obscureText,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Password',
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(color: AppTheme.textSecondaryColor),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: _passwordController,
-          obscureText: _obscurePassword,
+          controller: controller,
+          obscureText: obscureText,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppTheme.surfaceColor,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -271,13 +270,15 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                color: AppTheme.textSecondaryColor,
+                Icons.visibility_off,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
+                context.read<LoginBloc>().add(
+                  LoginPasswordToggled(),
+                );
+                 
+                
               },
             ),
           ),
@@ -296,7 +297,7 @@ class _SignInScreenState extends State<SignInScreen> {
             padding: const EdgeInsets.symmetric(vertical: 12),
             side: const BorderSide(color: Color(0xFF747775)),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           child: Row(
@@ -316,10 +317,8 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(width: 10),
               Text(
                 'Sign in with Google',
-                style: GoogleFonts.roboto(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1F1F1F),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],

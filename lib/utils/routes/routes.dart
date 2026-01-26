@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 import 'package:ptg/features/sign_in/ui/sign_in_screen.dart';
 import 'package:ptg/features/splash/initail_screen.dart';
 import 'package:ptg/features/tours/ui/tours_screen.dart';
@@ -43,10 +41,7 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.login,
           name: 'login',
-          builder: (context, state) => BlocProvider(
-            create: (context) => LoginBloc(),
-            child: const SignInScreen(),
-          ),
+          builder: (context, state) => const SignInScreen(),
         ),
       ],
       errorBuilder: (context, state) => Scaffold(
