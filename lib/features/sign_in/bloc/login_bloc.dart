@@ -19,7 +19,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginPasswordToggled event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(isPasswordVisible: !state.isPasswordVisible));
+    emit(state.copyWith(isPasswordVisible: !state.isPasswordHidden));
   }
 
   Future<void> _onEmailSubmitted(

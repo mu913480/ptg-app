@@ -33,7 +33,10 @@ class MyApp extends StatelessWidget {
         routerConfig: AppRouter.getRouter(context),
 
         title: 'Pakistan Tourism Guide',
-        theme: ThemeData(colorScheme: MaterialTheme.lightScheme()),
+        theme: ThemeData(
+          colorScheme: MaterialTheme.lightScheme(),
+          fontFamily: 'Oswald',
+        ),
         // darkTheme: ThemeData(colorScheme: MaterialTheme.darkScheme()),
         themeMode: ThemeMode.system,
       ),

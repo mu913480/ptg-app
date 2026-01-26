@@ -5,11 +5,11 @@ class LoginState extends Equatable {
   const LoginState({
     this.error = "",
     this.isLoading = false,
-    this.isPasswordVisible = false,
+    this.isPasswordHidden = true,
   });
   final String error;
   final bool isLoading;
-  final bool isPasswordVisible;
+  final bool isPasswordHidden;
 
   LoginState copyWith({
     String? error,
@@ -19,10 +19,10 @@ class LoginState extends Equatable {
     return LoginState(
       error: error ?? this.error,
       isLoading: isLoading ?? this.isLoading,
-      isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
+      isPasswordHidden: isPasswordVisible ?? this.isPasswordHidden,
     );
   }
 
   @override
-  List<Object?> get props => [error, isLoading, isPasswordVisible];
+  List<Object?> get props => [error, isLoading, isPasswordHidden];
 }
