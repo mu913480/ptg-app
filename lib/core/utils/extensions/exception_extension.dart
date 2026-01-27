@@ -1,4 +1,4 @@
-import 'package:ptg/utils/exceptions/common_exceptions.dart';
+import 'package:ptg/core/utils/exceptions/common_exceptions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 extension ReadableException on Exception {

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/features/sign_in/bloc/login_event.dart';
 import 'package:ptg/features/sign_in/bloc/login_state.dart';
-import 'package:ptg/network/auth_service.dart';
+import 'package:ptg/core/network/auth_service.dart';
 
 /// BLoC for handling login logic.
 class LoginBloc extends Bloc<LoginEvent, LoginState> {

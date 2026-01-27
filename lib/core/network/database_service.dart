@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ptg/utils/extensions/exception_extension.dart';
-import 'package:ptg/utils/network/network_checker.dart';
+import 'package:ptg/core/utils/extensions/exception_extension.dart';
+import 'package:ptg/core/network/network_checker.dart';
 
 /// Type definition for query filter functions.
 ///

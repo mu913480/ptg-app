@@ -1,5 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ptg/utils/exceptions/common_exceptions.dart';
+import 'package:ptg/core/utils/exceptions/common_exceptions.dart';
 
 /// A utility class to check network connectivity before making API calls.
 ///

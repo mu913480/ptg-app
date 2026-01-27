@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ptg/config/app_config.dart';
-import 'package:ptg/config/theme.dart';
+import 'package:ptg/core/config/app_config.dart';
+import 'package:ptg/core/config/theme.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
-import 'package:ptg/network/auth_service.dart';
-import 'package:ptg/utils/routes/routes.dart';
+import 'package:ptg/core/network/auth_service.dart';
+import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
