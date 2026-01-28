@@ -71,7 +71,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 Text(
                   'Login ',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -133,9 +133,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Login',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                           ),
                   ),
