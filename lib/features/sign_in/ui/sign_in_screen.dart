@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 import 'package:ptg/features/sign_in/bloc/login_event.dart';
 import 'package:ptg/features/sign_in/bloc/login_state.dart';
@@ -226,12 +228,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        // TODO: Navigate to create account
-                      },
+                    TextButton(
+                      onPressed: () => context.push(AppRoutes.signUp),
                       child: Text(
-                        'create account',
+                        'Create account',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 14,

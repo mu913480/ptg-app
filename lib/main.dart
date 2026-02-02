@@ -6,6 +6,7 @@ import 'package:ptg/core/config/util.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 
 import 'package:ptg/core/utils/routes/routes.dart';
+import 'package:ptg/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -31,7 +32,10 @@ class MyApp extends StatelessWidget {
     TextTheme textTheme = createTextTheme(context, "Oswald", "Oswald");
     MaterialTheme materialTheme = MaterialTheme(textTheme);
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => LoginBloc())],
+      providers: [
+        BlocProvider(create: (context) => SignUpBloc()),
+        BlocProvider(create: (context) => LoginBloc()),
+      ],
       child: MaterialApp.router(
         routerConfig: AppRouter.getRouter(context),
 
