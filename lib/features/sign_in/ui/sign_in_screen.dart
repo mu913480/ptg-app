@@ -61,7 +61,12 @@ class _SignInScreenState extends State<SignInScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: BlocBuilder<LoginBloc, LoginState>(
+      child: BlocConsumer<LoginBloc, LoginState>(
+        listener: (context, state) {
+          if (state.isLoggedInSuccess) {
+            context.go(AppRoutes.tours);
+          }
+        },
         builder: (context, state) {
           return Form(
             key: formkey,
