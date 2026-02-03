@@ -19,7 +19,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginPasswordToggled event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(isPasswordVisible: !state.isPasswordHidden));
+    emit(state.copyWith(isPasswordHidden: !state.isPasswordHidden));
   }
 
   Future<void> _onEmailSubmitted(
@@ -53,7 +53,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       final success = await _authService.signInWithGoogle();
       if (success) {
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isLoading: false, isLoggedInSuccess: true));
       } else {
         emit(
           state.copyWith(

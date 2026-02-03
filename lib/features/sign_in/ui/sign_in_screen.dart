@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 import 'package:ptg/features/sign_in/bloc/login_event.dart';
 import 'package:ptg/features/sign_in/bloc/login_state.dart';
@@ -59,7 +61,12 @@ class _SignInScreenState extends State<SignInScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: BlocBuilder<LoginBloc, LoginState>(
+      child: BlocConsumer<LoginBloc, LoginState>(
+        listener: (context, state) {
+          if (state.isLoggedInSuccess) {
+            context.go(AppRoutes.tours);
+          }
+        },
         builder: (context, state) {
           return Form(
             key: formkey,
@@ -71,7 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 Text(
                   'Login ',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -133,9 +140,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Login',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                           ),
                   ),
@@ -226,12 +233,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        // TODO: Navigate to create account
-                      },
+                    TextButton(
+                      onPressed: () => context.push(AppRoutes.signUp),
                       child: Text(
-                        'create account',
+                        'Create account',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 14,

@@ -46,6 +46,30 @@ class AuthService {
     }
   }
 
+  /// Signs up a user with email and password.
+  ///
+  /// Returns the [AuthResponse] on success, throws an exception on failure.
+  Future<AuthResponse> signUpWithEmail({
+    required String email,
+    required String password,
+    Map<String, dynamic>? data,
+  }) async {
+    await _networkChecker.checkConnectivity();
+
+    try {
+      final response = await _supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: data,
+      );
+      return response;
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    } on Exception catch (e) {
+      throw Exception(e.exceptionToString());
+    }
+  }
+
   /// Signs in a user with Google OAuth.
   ///
   /// Returns true on success, throws an exception on failure.

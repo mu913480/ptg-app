@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/core/config/app_config.dart';
 import 'package:ptg/core/config/theme.dart';
+import 'package:ptg/core/config/util.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
-import 'package:ptg/core/network/auth_service.dart';
+
 import 'package:ptg/core/utils/routes/routes.dart';
+import 'package:ptg/features/sign_up/bloc/sign_up_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -27,17 +29,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = createTextTheme(context, "Oswald", "Oswald");
+    MaterialTheme materialTheme = MaterialTheme(textTheme);
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => LoginBloc())],
+      providers: [
+        BlocProvider(create: (context) => SignUpBloc()),
+        BlocProvider(create: (context) => LoginBloc()),
+      ],
       child: MaterialApp.router(
         routerConfig: AppRouter.getRouter(context),
 
         title: 'Pakistan Tourism Guide',
-        theme: ThemeData(
-          colorScheme: MaterialTheme.lightScheme(),
-          fontFamily: 'Oswald',
-        ),
-        // darkTheme: ThemeData(colorScheme: MaterialTheme.darkScheme()),
+        theme: materialTheme.light(),
+
+        // darkTheme: materialTheme.dark(),
         themeMode: ThemeMode.system,
       ),
     );
