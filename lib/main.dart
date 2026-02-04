@@ -7,6 +7,7 @@ import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 
 import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:ptg/features/sign_up/bloc/sign_up_bloc.dart';
+import 'package:ptg/features/tours/bloc/tours_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => SignUpBloc()),
         BlocProvider(create: (context) => LoginBloc()),
+        BlocProvider(create: (context) => ToursBloc()),
       ],
       child: MaterialApp.router(
         routerConfig: AppRouter.getRouter(context),
