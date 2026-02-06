@@ -4,6 +4,7 @@ import 'package:ptg/features/sign_in/ui/sign_in_screen.dart';
 import 'package:ptg/features/sign_up/ui/sign_up_screen.dart';
 import 'package:ptg/features/splash/initail_screen.dart';
 import 'package:ptg/features/tours/ui/tours_screen.dart';
+import 'package:ptg/features/stops/ui/stop_screen.dart';
 
 /// Route path constants
 class AppRoutes {
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String tourMap = '/tour-map';
   static const String imageUpload = '/image_upload';
   static const String signUp = '/sign_up';
+  static const String tourStops = '/tour_stops/:tourId';
 }
 
 /// App router configuration
@@ -49,6 +51,14 @@ class AppRouter {
           path: AppRoutes.signUp,
           name: 'signUp',
           builder: (context, state) => const SignUpScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.tourStops,
+          name: 'tourStops',
+          builder: (context, state) {
+            final tourId = state.pathParameters['tourId']!;
+            return StopScreen(tourId: tourId);
+          },
         ),
       ],
       errorBuilder: (context, state) => Scaffold(
