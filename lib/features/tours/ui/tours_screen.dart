@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -76,11 +77,11 @@ class JourneyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.primaries[1].withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -93,9 +94,15 @@ class JourneyCard extends StatelessWidget {
           // Image Section (Placeholder for now)
           Container(
             height: 180,
-            color: Colors.grey.shade300,
+
             alignment: Alignment.center,
-            child: const Icon(Icons.image, size: 50, color: Colors.grey),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+            child: CachedNetworkImage(
+              imageUrl: tour.imageUrl,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -106,42 +113,30 @@ class JourneyCard extends StatelessWidget {
                   tour.title,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                    const Icon(Icons.location_on, size: 16),
                     const SizedBox(width: 4),
                     Text(
                       '${tour.distance} km',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(width: 16),
-                    const Icon(Icons.people, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${tour.visitors} Visitors',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Navigate to details
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
-                    child: const Text('Book Now'),
-                  ),
+                    const SizedBox(width: 16),
+                    const Icon(Icons.people, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${tour.stops} Stops',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
