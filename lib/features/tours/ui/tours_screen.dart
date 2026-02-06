@@ -92,11 +92,8 @@ class JourneyCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image Section (Placeholder for now)
-          Container(
-            height: 180,
-
-            alignment: Alignment.center,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
             child: CachedNetworkImage(
               imageUrl: tour.imageUrl,
               placeholder: (context, url) =>
