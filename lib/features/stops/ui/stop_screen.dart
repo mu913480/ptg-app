@@ -15,11 +15,11 @@ class StopScreen extends StatelessWidget {
         appBar: AppBar(title: const Text('Stops')),
         body: BlocBuilder<StopBloc, StopState>(
           builder: (context, state) {
-            if (state is StopLoading) {
+            if (state.isLoading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is StopError) {
-              return Center(child: Text('Error: ${state.message}'));
-            } else if (state is StopLoaded) {
+            } else if (state.error.isNotEmpty) {
+              return Center(child: Text('Error: ${state.error}'));
+            } else if (state.stops.isNotEmpty) {
               if (state.stops.isEmpty) {
                 return const Center(
                   child: Text('No stops found for this tour.'),
@@ -52,20 +52,10 @@ class StopScreen extends StatelessWidget {
                             Text(stop.description),
                           ],
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              if (stop.isHotelAvailable)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 8.0),
-                                  child: Icon(Icons.hotel, size: 20),
-                                ),
-                              if (stop.has4g)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 8.0),
-                                  child: Icon(Icons.wifi, size: 20),
-                                ),
-                            ],
-                          ),
+                          if (stop.image.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Image.network(stop.image),
+                          ],
                         ],
                       ),
                     ),

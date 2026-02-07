@@ -10,19 +10,22 @@ class StopBloc extends Bloc<StopEvent, StopState> {
 
   StopBloc({DatabaseService? databaseService})
     : _databaseService = databaseService ?? DatabaseService(),
-      super(StopInitial()) {
+      super(StopState()) {
     on<LoadStops>(_onLoadStops);
   }
 
   Future<void> _onLoadStops(LoadStops event, Emitter<StopState> emit) async {
     await _databaseService.getRecords<Stop>(
       tableName: 'stop',
-      onLoading: () => emit(StopLoading()),
-      onSuccess: (data) => emit(StopLoaded(data)),
-      onError: (error) => emit(StopError(error.toString())),
+      onLoading: () => emit(state.copyWith(isLoading: true)),
+      onSuccess: (data) => emit(state.copyWith(stops: data, isLoading: false)),
+      onError: (error) => emit(
+        state.copyWith(error: error.toString(), isLoading: false, stops: []),
+      ),
       fromJson: (json) => Stop.fromJson(json),
+      select: "id, name, tour_id, description, stop_images(image_url)",
       filter: (query) => query.eq('tour_id', event.tourId),
-      orderBy: 'order',
+      orderBy: 'name',
       ascending: true,
     );
   }
