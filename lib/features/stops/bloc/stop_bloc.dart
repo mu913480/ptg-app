@@ -24,7 +24,9 @@ class StopBloc extends Bloc<StopEvent, StopState> {
       ),
       fromJson: (json) => Stop.fromJson(json),
       select: "id, name, tour_id, description, stop_images(image_url)",
-      filter: (query) => query.eq('tour_id', event.tourId),
+      filter: (query) => query
+          .eq('tour_id', event.tourId)
+          .limit(1, referencedTable: 'stop_images'),
       orderBy: 'name',
       ascending: true,
     );

@@ -13,7 +13,7 @@ import 'package:ptg/core/network/network_checker.dart';
 ///   .gte('visitors', 100);
 /// ```
 typedef QueryFilter =
-    PostgrestFilterBuilder Function(PostgrestFilterBuilder query);
+    PostgrestTransformBuilder Function(PostgrestFilterBuilder query);
 
 /// A service class that provides generic database operations for Supabase.
 ///
