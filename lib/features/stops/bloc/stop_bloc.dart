@@ -23,7 +23,8 @@ class StopBloc extends Bloc<StopEvent, StopState> {
         state.copyWith(error: error.toString(), isLoading: false, stops: []),
       ),
       fromJson: (json) => Stop.fromJson(json),
-      select: "id, name, tour_id, description, stop_images(image_url)",
+      select:
+          "id, name, tour_id, latitude, longitude, description, stop_images(image_url)",
       filter: (query) => query
           .eq('tour_id', event.tourId)
           .limit(1, referencedTable: 'stop_images'),

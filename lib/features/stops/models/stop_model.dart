@@ -3,12 +3,16 @@ class Stop {
   final String name;
   final String tourId;
   final String description;
+  final double latitude;
+  final double longitude;
   final String image;
 
   Stop({
     required this.id,
     required this.name,
     required this.tourId,
+    required this.latitude,
+    required this.longitude,
     required this.description,
     required this.image,
   });
@@ -24,6 +28,8 @@ class Stop {
       id: json['id'] as int,
       name: json['name'] as String,
       tourId: json['tour_id'] as String,
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String? ?? '',
       image: firstImage,
     );
@@ -34,6 +40,8 @@ class Stop {
       'id': id,
       'name': name,
       'tour_id': tourId,
+      'latitude': latitude,
+      'longitude': longitude,
       'description': description,
       'image': image,
     };
