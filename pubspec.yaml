@@ -41,6 +41,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
   cached_network_image:
+  flutter_map: ^8.2.2
 
 dev_dependencies:
   flutter_test:
