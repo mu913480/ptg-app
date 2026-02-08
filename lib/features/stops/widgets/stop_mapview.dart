@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ptg/features/stops/bloc/stop_bloc.dart';
+import 'package:ptg/features/stops/widgets/tile_providers.dart';
 
 class StopMapView extends StatelessWidget {
   const StopMapView({super.key});
@@ -73,12 +74,14 @@ class StopMapView extends StatelessWidget {
             initialZoom: 13,
           ),
           children: [
+            // AvailableTileProviders.providers['cartodb_voyager']!
+            //     .toFlutterMapTileLayer(),
             TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              additionalOptions: {
-                'language': 'english', // Specifically request Urdu
-              },
-              userAgentPackageName: 'com.example.ptg',
+              urlTemplate:
+                  // 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                  'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
+              userAgentPackageName: 'com.example.app',
+              // It's good practice to add a subdomains list if the provider uses them
             ),
             MarkerLayer(markers: markers),
           ],
