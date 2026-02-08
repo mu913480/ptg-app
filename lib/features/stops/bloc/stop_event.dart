@@ -7,3 +7,10 @@ class LoadStops extends StopEvent {
 
   LoadStops(this.tourId);
 }
+
+class ToggleMapView extends StopEvent {}
+
+class ChangeTileProvider extends StopEvent {
+  final String providerId;
+  ChangeTileProvider(this.providerId);
+}

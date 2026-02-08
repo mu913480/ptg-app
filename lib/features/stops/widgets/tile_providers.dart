@@ -84,6 +84,40 @@ class AvailableTileProviders {
       attribution: '© CARTO, © OpenStreetMap contributors',
       isWorking: true,
     ),
+    'google_satellite': TileProviderInfo(
+      name: 'Google Satellite',
+      url: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      description: 'High-resolution satellite imagery from Google',
+      attribution: '© Google',
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    ),
+    'google_terrain': TileProviderInfo(
+      name: 'Google Terrain',
+      url: 'https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+      description: 'Terrain map with labels from Google',
+      attribution: '© Google',
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    ),
+    'google_hybrid': TileProviderInfo(
+      name: 'Google Hybrid',
+      url: 'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
+      description: 'Satellite imagery with road and label overlays',
+      attribution: '© Google',
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    ),
+    'cyclosm': TileProviderInfo(
+      name: 'CyclOSM',
+      url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+      description: 'Beautiful bicycle-oriented map',
+      attribution: '© CyclOSM, © OpenStreetMap contributors',
+    ),
+    'humanitarian': TileProviderInfo(
+      name: 'Humanitarian',
+      url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      description: 'High-contrast map with clear details',
+      attribution:
+          '© OpenStreetMap contributors, Humanitarian OpenStreetMap Team',
+    ),
   };
 
   /// Get only working tile providers

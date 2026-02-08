@@ -4,37 +4,52 @@ import 'package:ptg/features/stops/bloc/stop_bloc.dart';
 import 'package:ptg/features/stops/widgets/stop_listview.dart';
 import 'package:ptg/features/stops/widgets/stop_mapview.dart';
 
-class StopScreen extends StatelessWidget {
+class StopScreen extends StatefulWidget {
   final String tourId;
 
   const StopScreen({super.key, required this.tourId});
 
   @override
+  State<StopScreen> createState() => _StopScreenState();
+}
+
+class _StopScreenState extends State<StopScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<StopBloc>().add(LoadStops(widget.tourId));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => StopBloc()..add(LoadStops(tourId)),
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(title: const Text('Stops')),
-          body: const TabBarView(children: [StopMapView(), StopListView()]),
-          bottomNavigationBar: SafeArea(
-            child: Material(
-              color: Theme.of(context).colorScheme.surface,
-              elevation: 8,
-              child: TabBar(
-                labelColor: Theme.of(context).colorScheme.primary,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Theme.of(context).colorScheme.primary,
-                tabs: const [
-                  Tab(icon: Icon(Icons.map), text: 'Overview'),
-                  Tab(icon: Icon(Icons.list), text: 'Stops'),
-                ],
+    return BlocConsumer<StopBloc, StopState>(
+      listener: (context, state) {
+        if (state.error.isNotEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error)));
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Stops'),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  context.read<StopBloc>().state.isMapview
+                      ? Icons.list
+                      : Icons.map,
+                ),
+                onPressed: () {
+                  context.read<StopBloc>().add(ToggleMapView());
+                },
               ),
-            ),
+            ],
           ),
-        ),
-      ),
+          body: state.isMapview ? const StopMapView() : const StopListView(),
+        );
+      },
     );
   }
 }

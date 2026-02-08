@@ -68,22 +68,70 @@ class StopMapView extends StatelessWidget {
         avgLat /= state.stops.length;
         avgLng /= state.stops.length;
 
-        return FlutterMap(
-          options: MapOptions(
-            initialCenter: LatLng(avgLat, avgLng),
-            initialZoom: 13,
-          ),
+        return Stack(
           children: [
-            // AvailableTileProviders.providers['cartodb_voyager']!
-            //     .toFlutterMapTileLayer(),
-            TileLayer(
-              urlTemplate:
-                  // 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                  'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
-              userAgentPackageName: 'com.example.app',
-              // It's good practice to add a subdomains list if the provider uses them
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: LatLng(avgLat, avgLng),
+                initialZoom: 13,
+              ),
+              children: [
+                if (AvailableTileProviders.providers.containsKey(
+                  state.selectedTileId,
+                ))
+                  AvailableTileProviders.providers[state.selectedTileId]!
+                      .toFlutterMapTileLayer(),
+                MarkerLayer(markers: markers),
+              ],
             ),
-            MarkerLayer(markers: markers),
+            Positioned(
+              top: 10,
+              left: 0,
+              right: 0,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children:
+                      [
+                        'cartodb_voyager',
+                        'google_satellite',
+                        'google_terrain',
+                        'google_hybrid',
+                        'cyclosm',
+                        'humanitarian',
+                      ].map((id) {
+                        final info = AvailableTileProviders.providers[id];
+                        if (info == null) return const SizedBox.shrink();
+                        final isSelected = state.selectedTileId == id;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(
+                              info.name,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontSize: 12,
+                              ),
+                            ),
+                            selected: isSelected,
+                            selectedColor: Theme.of(context).primaryColor,
+                            backgroundColor: Colors.white.withAlpha(230),
+                            onSelected: (selected) {
+                              if (selected) {
+                                context.read<StopBloc>().add(
+                                  ChangeTileProvider(id),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      }).toList(),
+                ),
+              ),
+            ),
           ],
         );
       },

@@ -12,6 +12,15 @@ class StopBloc extends Bloc<StopEvent, StopState> {
     : _databaseService = databaseService ?? DatabaseService(),
       super(StopState()) {
     on<LoadStops>(_onLoadStops);
+    on<ToggleMapView>(_onToggleMapView);
+    on<ChangeTileProvider>(_onChangeTileProvider);
+  }
+
+  void _onChangeTileProvider(
+    ChangeTileProvider event,
+    Emitter<StopState> emit,
+  ) {
+    emit(state.copyWith(selectedTileId: event.providerId));
   }
 
   Future<void> _onLoadStops(LoadStops event, Emitter<StopState> emit) async {
@@ -31,5 +40,12 @@ class StopBloc extends Bloc<StopEvent, StopState> {
       orderBy: 'name',
       ascending: true,
     );
+  }
+
+  Future<void> _onToggleMapView(
+    ToggleMapView event,
+    Emitter<StopState> emit,
+  ) async {
+    emit(state.copyWith(isMapview: !state.isMapview));
   }
 }
