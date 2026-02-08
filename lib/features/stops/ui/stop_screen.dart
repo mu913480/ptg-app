@@ -16,16 +16,23 @@ class StopScreen extends StatelessWidget {
       child: DefaultTabController(
         length: 2,
         child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Stops'),
-            bottom: const TabBar(
-              tabs: [
-                Tab(text: 'Overview'),
-                Tab(text: 'Stops'),
-              ],
+          appBar: AppBar(title: const Text('Stops')),
+          body: const TabBarView(children: [StopMapView(), StopListView()]),
+          bottomNavigationBar: SafeArea(
+            child: Material(
+              color: Theme.of(context).colorScheme.surface,
+              elevation: 8,
+              child: TabBar(
+                labelColor: Theme.of(context).colorScheme.primary,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Theme.of(context).colorScheme.primary,
+                tabs: const [
+                  Tab(icon: Icon(Icons.map), text: 'Overview'),
+                  Tab(icon: Icon(Icons.list), text: 'Stops'),
+                ],
+              ),
             ),
           ),
-          body: TabBarView(children: [StopMapView(), StopListView()]),
         ),
       ),
     );
