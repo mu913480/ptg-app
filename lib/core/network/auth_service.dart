@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ptg/core/utils/extensions/exception_extension.dart';
@@ -86,27 +87,54 @@ class AuthService {
       /// You can get it from the Google Cloud Console.
       const iosClientId = 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com';
 
-      final googleSignIn = GoogleSignIn(
+      final googleSignIn = GoogleSignIn.instance;
+
+      /// Initialize the GoogleSignIn instance exactly once.
+      await googleSignIn.initialize(
         clientId: iosClientId,
         serverClientId: webClientId,
       );
 
-      final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return false;
+      final completer = Completer<AuthResponse>();
 
-      final googleAuth = await googleUser.authentication;
-      final accessToken = googleAuth.accessToken;
-      final idToken = googleAuth.idToken;
+      /// Listen for the sign-in event to capture the ID and access tokens.
+      final subscription = googleSignIn.authenticationEvents.listen((
+        event,
+      ) async {
+        if (event is GoogleSignInAuthenticationEventSignIn) {
+          try {
+            final auth = event.user.authentication;
+            final idToken = auth.idToken;
 
-      if (idToken == null) {
-        throw Exception('Google ID Token not found.');
-      }
+            if (idToken == null) {
+              completer.completeError(Exception('Google ID Token not found.'));
+              return;
+            }
 
-      final response = await _supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: idToken,
-        accessToken: accessToken,
-      );
+            /// Retrieve the access token via the authorization client.
+            final authorization = await event.user.authorizationClient
+                .authorizationForScopes([]);
+            final accessToken = authorization?.accessToken;
+
+            final response = await _supabase.auth.signInWithIdToken(
+              provider: OAuthProvider.google,
+              idToken: idToken,
+              accessToken: accessToken,
+            );
+            completer.complete(response);
+          } catch (e) {
+            completer.completeError(e);
+          }
+        }
+      });
+
+      /// Trigger the authentication flow.
+      await googleSignIn.authenticate();
+
+      final response = await completer.future;
+
+      /// Cleanup the subscription.
+      await subscription.cancel();
 
       return response.user != null;
     } on AuthException catch (e) {
