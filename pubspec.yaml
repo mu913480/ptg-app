@@ -42,6 +42,10 @@ dependencies:
   equatable: ^2.0.8
   cached_network_image:
   flutter_map: ^8.2.2
+  flutter_map_cache: ^2.0.0+1
+  http_cache_drift_store: ^7.0.0
+  sqlite3_flutter_libs: ^0.5.41
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

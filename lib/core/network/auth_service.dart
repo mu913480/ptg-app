@@ -1,3 +1,4 @@
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ptg/core/utils/extensions/exception_extension.dart';
 import 'package:ptg/core/network/network_checker.dart';
@@ -77,11 +78,37 @@ class AuthService {
     await _networkChecker.checkConnectivity();
 
     try {
-      final response = await _supabase.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'io.supabase.ptg://login-callback/',
+      /// [webClientId] is required for Google Sign-In on web and Android.
+      /// You can get it from the Google Cloud Console.
+      const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+
+      /// [iosClientId] is required for Google Sign-In on iOS.
+      /// You can get it from the Google Cloud Console.
+      const iosClientId = 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com';
+
+      final googleSignIn = GoogleSignIn(
+        clientId: iosClientId,
+        serverClientId: webClientId,
       );
-      return response;
+
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return false;
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Google ID Token not found.');
+      }
+
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      return response.user != null;
     } on AuthException catch (e) {
       throw Exception(e.message);
     } on Exception catch (e) {

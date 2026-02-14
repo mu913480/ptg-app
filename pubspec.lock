@@ -193,6 +193,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      sha256: b9d46faecab38fc8cc286f80bc4d61a3bb5d4ac49e51ed877b4d6706efe57b25
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.9.1"
+  dio_cache_interceptor:
+    dependency: transitive
+    description:
+      name: dio_cache_interceptor
+      sha256: ac9f312e5a81d79cbccb15f56b78aeae7343a981c1d7c169b11194fae806ec0b
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.5"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: "7586e476d70caecaf1686d21eee7247ea43ef5c345eab9e0cc3583ff13378d78"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
+  drift:
+    dependency: transitive
+    description:
+      name: drift
+      sha256: "970cd188fddb111b26ea6a9b07a62bf5c2432d74147b8122c67044ae3b97e99e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.31.0"
   ed25519_edwards:
     dependency: transitive
     description:
@@ -286,6 +318,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.2.2"
+  flutter_map_cache:
+    dependency: "direct main"
+    description:
+      name: flutter_map_cache
+      sha256: fc9697760dc95b6adf75110a23a800ace5d95a735a58ec43f05183bc675c7246
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -312,6 +352,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "17.0.1"
+  google_identity_services_web:
+    dependency: transitive
+    description:
+      name: google_identity_services_web
+      sha256: "5d187c46dc59e02646e10fe82665fc3884a9b71bc1c90c2b8b749316d33ee454"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3+1"
+  google_sign_in:
+    dependency: "direct main"
+    description:
+      name: google_sign_in
+      sha256: "521031b65853b4409b8213c0387d57edaad7e2a949ce6dea0d8b2afc9cb29763"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.0"
+  google_sign_in_android:
+    dependency: transitive
+    description:
+      name: google_sign_in_android
+      sha256: "5ec98ab35387c68c0050495bb211bd88375873723a80fae7c2e9266ea0bdd8bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.7"
+  google_sign_in_ios:
+    dependency: transitive
+    description:
+      name: google_sign_in_ios
+      sha256: ac1e4c1205267cb7999d1d81333fccffdfda29e853f434bbaf71525498bb6950
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.0"
+  google_sign_in_platform_interface:
+    dependency: transitive
+    description:
+      name: google_sign_in_platform_interface
+      sha256: "7f59208c42b415a3cca203571128d6f84f885fead2d5b53eb65a9e27f2965bb5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+  google_sign_in_web:
+    dependency: transitive
+    description:
+      name: google_sign_in_web
+      sha256: "2fc1f941e6443b2d6984f4056a727a3eaeab15d8ee99ba7125d79029be75a1da"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   gotrue:
     dependency: transitive
     description:
@@ -336,6 +424,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.0"
+  http_cache_core:
+    dependency: transitive
+    description:
+      name: http_cache_core
+      sha256: ff0b6e6c3766d774d59b806f928b39e6a48f7b2c47ae1fe27410bfd792bee511
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.3"
+  http_cache_drift_store:
+    dependency: "direct main"
+    description:
+      name: http_cache_drift_store
+      sha256: "369497975bb21b62410da601907e94bdf748bf9d0f189e14449ebf0592748ddb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   http_parser:
     dependency: transitive
     description:
@@ -733,6 +837,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  sqlite3:
+    dependency: transitive
+    description:
+      name: sqlite3
+      sha256: "3145bd74dcdb4fd6f5c6dda4d4e4490a8087d7f286a14dee5d37087290f0f8a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.9.4"
+  sqlite3_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: sqlite3_flutter_libs
+      sha256: "1e800ebe7f85a80a66adacaa6febe4d5f4d8b75f244e9838a27cb2ffc7aec08d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.41"
   stack_trace:
     dependency: transitive
     description:
