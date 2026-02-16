@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/core/config/app_config.dart';
 import 'package:ptg/core/config/theme.dart';
@@ -21,6 +22,11 @@ void main() async {
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
+  );
+
+  // Initialize Google Sign-in exactly once
+  await GoogleSignIn.instance.initialize(
+    serverClientId: AppConfig.googleWebClientId,
   );
 
   runApp(const MyApp());

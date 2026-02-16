@@ -79,21 +79,7 @@ class AuthService {
     await _networkChecker.checkConnectivity();
 
     try {
-      /// [webClientId] is required for Google Sign-In on web and Android.
-      /// You can get it from the Google Cloud Console.
-      const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
-
-      /// [iosClientId] is required for Google Sign-In on iOS.
-      /// You can get it from the Google Cloud Console.
-      const iosClientId = 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com';
-
       final googleSignIn = GoogleSignIn.instance;
-
-      /// Initialize the GoogleSignIn instance exactly once.
-      await googleSignIn.initialize(
-        clientId: iosClientId,
-        serverClientId: webClientId,
-      );
 
       final completer = Completer<AuthResponse>();
 
@@ -105,24 +91,31 @@ class AuthService {
           try {
             final auth = event.user.authentication;
             final idToken = auth.idToken;
-
+            print(idToken);
             if (idToken == null) {
               completer.completeError(Exception('Google ID Token not found.'));
+              print("Google ID Token not found.");
               return;
             }
 
             /// Retrieve the access token via the authorization client.
             final authorization = await event.user.authorizationClient
-                .authorizationForScopes([]);
+                .authorizationForScopes([
+                  "https://www.googleapis.com/auth/userinfo.email",
+                  "email",
+                ]);
             final accessToken = authorization?.accessToken;
+            print(accessToken);
 
             final response = await _supabase.auth.signInWithIdToken(
               provider: OAuthProvider.google,
               idToken: idToken,
               accessToken: accessToken,
             );
+            print("response: $response");
             completer.complete(response);
           } catch (e) {
+            print(e.toString());
             completer.completeError(e);
           }
         }

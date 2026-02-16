@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:ptg/features/stops/bloc/stop_bloc.dart';
 import 'package:ptg/features/stops/widgets/tile_providers.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:latlong2/latlong.dart';
 
 class StopMapView extends StatelessWidget {
   const StopMapView({super.key});
@@ -79,8 +80,20 @@ class StopMapView extends StatelessWidget {
                 if (AvailableTileProviders.providers.containsKey(
                   state.selectedTileId,
                 ))
-                  AvailableTileProviders.providers[state.selectedTileId]!
-                      .toFlutterMapTileLayer(),
+                  FutureBuilder(
+                    future: getDownloadsDirectory(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return AvailableTileProviders
+                            .providers[state.selectedTileId]!
+                            .toFlutterMapTileLayer(
+                              name: state.selectedTileId,
+                              path: snapshot.data!.path,
+                            );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 MarkerLayer(markers: markers),
               ],
             ),
