@@ -2,7 +2,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:http_cache_drift_store/http_cache_drift_store.dart';
-import 'package:path_provider/path_provider.dart';
 
 /// Tile Provider Information
 class TileProviderInfo {
@@ -26,18 +25,12 @@ class TileProviderInfo {
 }
 
 extension TileProviderInfoExtension on TileProviderInfo {
-  TileLayer toFlutterMapTileLayer({
-    required String name,
-    required String path,
-  }) {
+  TileLayer toFlutterMapTileLayer({required String path}) {
     return TileLayer(
       urlTemplate: url,
       subdomains: subdomains,
       tileProvider: CachedTileProvider(
-        store: DriftCacheStore(
-          databasePath: path + "/" + name,
-          databaseName: name,
-        ),
+        store: DriftCacheStore(databasePath: path, databaseName: "flutter_map"),
       ),
     );
   }
@@ -46,13 +39,6 @@ extension TileProviderInfoExtension on TileProviderInfo {
 /// Available tile providers with their information
 class AvailableTileProviders {
   static const Map<String, TileProviderInfo> providers = {
-    'osm': TileProviderInfo(
-      name: 'OpenStreetMap',
-      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      description: 'Standard OpenStreetMap tiles with default styling',
-      attribution: '© OpenStreetMap contributors',
-      isWorking: true,
-    ),
     'cartodb_voyager': TileProviderInfo(
       description: 'CartoDB Voyager style',
       name: 'CartoDB Voyager',
@@ -61,52 +47,7 @@ class AvailableTileProviders {
       attribution: '© CartoDB',
       subdomains: ['a', 'b', 'c', 'd'],
     ),
-    'cartodb_positron': TileProviderInfo(
-      name: 'CartoDB Positron',
-      url:
-          'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-      description: 'Clean, minimal design with light colors',
-      attribution: '© CartoDB',
-      subdomains: ['a', 'b', 'c', 'd'],
-      isWorking: true,
-    ),
-    'cartodb_dark': TileProviderInfo(
-      name: 'CartoDB Dark Matter',
-      url:
-          'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
-      description: 'Dark theme with high contrast',
-      attribution: '© CartoDB',
-      subdomains: ['a', 'b', 'c', 'd'],
-      isWorking: true,
-    ),
 
-    // Fast alternative providers
-    'cartodb_voyager_new': TileProviderInfo(
-      name: 'CartoDB Voyager (New CDN)',
-      url:
-          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      description: 'CartoDB Voyager style via new CDN',
-      attribution: '© CARTO, © OpenStreetMap contributors',
-      subdomains: ['a', 'b', 'c', 'd'],
-      isWorking: true,
-    ),
-
-    // Option 2: Alternative CARTO CDN format
-    'cartodb_voyager_alt': TileProviderInfo(
-      name: 'CartoDB Voyager (Alt) Little Faster',
-      url:
-          'https://tiles.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      description: 'CartoDB Voyager alternative URL',
-      attribution: '© CARTO, © OpenStreetMap contributors',
-      isWorking: true,
-    ),
-    'google_satellite': TileProviderInfo(
-      name: 'Google Satellite',
-      url: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      description: 'High-resolution satellite imagery from Google',
-      attribution: '© Google',
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-    ),
     'google_terrain': TileProviderInfo(
       name: 'Google Terrain',
       url: 'https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
@@ -120,19 +61,6 @@ class AvailableTileProviders {
       description: 'Satellite imagery with road and label overlays',
       attribution: '© Google',
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-    ),
-    'cyclosm': TileProviderInfo(
-      name: 'CyclOSM',
-      url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-      description: 'Beautiful bicycle-oriented map',
-      attribution: '© CyclOSM, © OpenStreetMap contributors',
-    ),
-    'humanitarian': TileProviderInfo(
-      name: 'Humanitarian',
-      url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-      description: 'High-contrast map with clear details',
-      attribution:
-          '© OpenStreetMap contributors, Humanitarian OpenStreetMap Team',
     ),
   };
 

@@ -86,10 +86,7 @@ class StopMapView extends StatelessWidget {
                       if (snapshot.hasData) {
                         return AvailableTileProviders
                             .providers[state.selectedTileId]!
-                            .toFlutterMapTileLayer(
-                              name: state.selectedTileId,
-                              path: snapshot.data!.path,
-                            );
+                            .toFlutterMapTileLayer(path: snapshot.data!.path);
                       }
                       return const SizedBox.shrink();
                     },
