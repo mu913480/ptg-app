@@ -51,6 +51,24 @@ class AppConfig {
     return key;
   }
 
+  /// Get Google Web Client ID from environment variables
+  static String get googleWebClientId {
+    final key = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
+    if (key == null || key.isEmpty) {
+      return ''; // Or handle as required
+    }
+    return key;
+  }
+
+  /// Get Google iOS Client ID from environment variables
+  static String get googleIosClientId {
+    final key = dotenv.env['GOOGLE_IOS_CLIENT_ID'];
+    if (key == null || key.isEmpty) {
+      return ''; // Or handle as required
+    }
+    return key;
+  }
+
   /// Get optional Supabase service role key (for admin operations)
   ///
   /// Returns null if not set. This should only be used in secure backend contexts,

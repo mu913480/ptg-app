@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/core/config/app_config.dart';
 import 'package:ptg/core/config/theme.dart';
@@ -7,6 +8,8 @@ import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 
 import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:ptg/features/sign_up/bloc/sign_up_bloc.dart';
+import 'package:ptg/features/stops/bloc/stop_bloc.dart';
+import 'package:ptg/features/tours/bloc/tours_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -19,6 +22,11 @@ void main() async {
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
+  );
+
+  // Initialize Google Sign-in exactly once
+  await GoogleSignIn.instance.initialize(
+    serverClientId: AppConfig.googleWebClientId,
   );
 
   runApp(const MyApp());
@@ -35,6 +43,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => SignUpBloc()),
         BlocProvider(create: (context) => LoginBloc()),
+        BlocProvider(create: (context) => ToursBloc()),
+        BlocProvider(create: (context) => StopBloc()),
       ],
       child: MaterialApp.router(
         routerConfig: AppRouter.getRouter(context),

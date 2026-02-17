@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ptg/core/utils/extensions/exception_extension.dart';
 import 'package:ptg/core/network/network_checker.dart';
@@ -77,11 +79,57 @@ class AuthService {
     await _networkChecker.checkConnectivity();
 
     try {
-      final response = await _supabase.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'io.supabase.ptg://login-callback/',
-      );
-      return response;
+      final googleSignIn = GoogleSignIn.instance;
+
+      final completer = Completer<AuthResponse>();
+
+      /// Listen for the sign-in event to capture the ID and access tokens.
+      final subscription = googleSignIn.authenticationEvents.listen((
+        event,
+      ) async {
+        if (event is GoogleSignInAuthenticationEventSignIn) {
+          try {
+            final auth = event.user.authentication;
+            final idToken = auth.idToken;
+            print(idToken);
+            if (idToken == null) {
+              completer.completeError(Exception('Google ID Token not found.'));
+              print("Google ID Token not found.");
+              return;
+            }
+
+            /// Retrieve the access token via the authorization client.
+            final authorization = await event.user.authorizationClient
+                .authorizationForScopes([
+                  "https://www.googleapis.com/auth/userinfo.email",
+                  "email",
+                ]);
+            final accessToken = authorization?.accessToken;
+            print(accessToken);
+
+            final response = await _supabase.auth.signInWithIdToken(
+              provider: OAuthProvider.google,
+              idToken: idToken,
+              accessToken: accessToken,
+            );
+            print("response: $response");
+            completer.complete(response);
+          } catch (e) {
+            print(e.toString());
+            completer.completeError(e);
+          }
+        }
+      });
+
+      /// Trigger the authentication flow.
+      await googleSignIn.authenticate();
+
+      final response = await completer.future;
+
+      /// Cleanup the subscription.
+      await subscription.cancel();
+
+      return response.user != null;
     } on AuthException catch (e) {
       throw Exception(e.message);
     } on Exception catch (e) {
