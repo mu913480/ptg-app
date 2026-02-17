@@ -24,13 +24,29 @@ class TileProviderInfo {
   });
 }
 
+class DriftSingleton {
+  static final DriftSingleton _instance = DriftSingleton._();
+  factory DriftSingleton() => _instance;
+  DriftSingleton._();
+
+  DriftCacheStore? _driftCacheStore;
+
+  DriftCacheStore getDriftCacheStore(String path) {
+    _driftCacheStore ??= DriftCacheStore(
+      databasePath: path,
+      databaseName: "flutter_map",
+    );
+    return _driftCacheStore!;
+  }
+}
+
 extension TileProviderInfoExtension on TileProviderInfo {
   TileLayer toFlutterMapTileLayer({required String path}) {
     return TileLayer(
       urlTemplate: url,
       subdomains: subdomains,
       tileProvider: CachedTileProvider(
-        store: DriftCacheStore(databasePath: path, databaseName: "flutter_map"),
+        store: DriftSingleton().getDriftCacheStore(path),
       ),
     );
   }
