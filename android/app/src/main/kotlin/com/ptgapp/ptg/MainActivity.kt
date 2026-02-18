@@ -1,4 +1,4 @@
-package com.example.ptg
+package com.ptgapp.ptg
 
 import io.flutter.embedding.android.FlutterActivity
 
