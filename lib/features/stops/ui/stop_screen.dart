@@ -47,7 +47,7 @@ class _StopScreenState extends State<StopScreen> {
               ),
             ],
           ),
-          body: state.isMapview ? const StopMapView() : const StopListView(),
+          body: state.isMapview ? StopMapView() : const StopListView(),
         );
       },
     );
