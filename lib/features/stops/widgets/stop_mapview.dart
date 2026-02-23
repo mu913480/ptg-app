@@ -35,27 +35,22 @@ class _StopMapViewState extends State<StopMapView> {
   }
 
   Future<Uint8List> _createMarkerImage() async {
-    const size = 40.0;
+    const size = 48.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    // Shadow
-    final shadowPaint = Paint()
-      ..color = Colors.black26
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-    canvas.drawCircle(
-      const Offset(size / 2, size / 2 + 2),
-      size / 2.5,
-      shadowPaint,
-    );
-
-    // Outer circle
-    final outerPaint = Paint()..color = const Color(0xFFE53935);
-    canvas.drawCircle(const Offset(size / 2, size / 2), size / 2.5, outerPaint);
-
-    // Inner circle
-    final innerPaint = Paint()..color = Colors.white;
-    canvas.drawCircle(const Offset(size / 2, size / 2), size / 5, innerPaint);
+    final textPainter = TextPainter(textDirection: TextDirection.ltr)
+      ..text = TextSpan(
+        text: String.fromCharCode(Icons.location_on.codePoint),
+        style: TextStyle(
+          fontSize: size,
+          fontFamily: Icons.location_on.fontFamily,
+          package: Icons.location_on.fontPackage,
+          color: const Color(0xFFE53935),
+        ),
+      )
+      ..layout();
+    textPainter.paint(canvas, Offset.zero);
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size.toInt(), size.toInt());
@@ -72,12 +67,14 @@ class _StopMapViewState extends State<StopMapView> {
       return PointAnnotationOptions(
         geometry: Point(coordinates: Position(stop.longitude, stop.latitude)),
         image: markerImage,
-        iconSize: 1.0,
+        iconSize: 1.50,
         textField: stop.name,
         textOffset: [0, 1.5],
-        textSize: 12.0,
+        textSize: 16.0,
+        textLetterSpacing: 0.15,
+
         textColor: Colors.black.toARGB32(),
-        textHaloColor: Colors.white.toARGB32(),
+        textHaloColor: Colors.black.toARGB32(),
         textHaloWidth: 1.5,
       );
     }).toList();
