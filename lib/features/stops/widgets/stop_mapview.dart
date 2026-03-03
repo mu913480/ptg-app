@@ -1,7 +1,7 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:ptg/features/stops/bloc/stop_bloc.dart';
@@ -111,27 +111,53 @@ class _StopMapViewState extends State<StopMapView> {
     return byteData!.buffer.asUint8List();
   }
 
-  /// Creates the red location pin marker image.
+  /// Creates a Google Maps-style red teardrop pin marker.
   Future<Uint8List> _createMarkerImage() async {
-    const size = 48.0;
+    const double width = 64.0;
+    const double height = 76.0;
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final textPainter = TextPainter(textDirection: TextDirection.ltr)
-      ..text = TextSpan(
-        text: String.fromCharCode(Icons.location_on.codePoint),
-        style: TextStyle(
-          fontSize: size,
-          fontFamily: Icons.location_on.fontFamily,
-          package: Icons.location_on.fontPackage,
-          color: const Color(0xFFE53935),
+    final centerX = width / 2;
+    const circleRadius = 24.0;
+    const circleY = 30.0;
+
+    // Draw shadow
+    final shadowPaint = Paint()
+      ..color = const Color(0x40000000)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+    final shadowPath = Path()
+      ..addOval(
+        Rect.fromCircle(
+          center: Offset(centerX + 1, circleY + 1),
+          radius: circleRadius,
         ),
       )
-      ..layout();
-    textPainter.paint(canvas, Offset.zero);
+      ..moveTo(centerX - 14 + 1, circleY + 18 + 1)
+      ..lineTo(centerX + 1, height - 6 + 1)
+      ..lineTo(centerX + 14 + 1, circleY + 18 + 1)
+      ..close();
+    canvas.drawPath(shadowPath, shadowPaint);
+
+    // Draw the red teardrop body
+    final pinPaint = Paint()..color = const Color(0xFFEA4335);
+    final pinPath = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(centerX, circleY), radius: circleRadius),
+      )
+      ..moveTo(centerX - 14, circleY + 18)
+      ..lineTo(centerX, height - 6)
+      ..lineTo(centerX + 14, circleY + 18)
+      ..close();
+    canvas.drawPath(pinPath, pinPaint);
+
+    // Draw the white inner circle
+    final innerCirclePaint = Paint()..color = const Color(0xFFFFFFFF);
+    canvas.drawCircle(Offset(centerX, circleY), 10.0, innerCirclePaint);
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(size.toInt(), size.toInt());
+    final image = await picture.toImage(width.toInt(), height.toInt());
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -147,12 +173,12 @@ class _StopMapViewState extends State<StopMapView> {
       labelImages.add(await _createLabelImage(stop.name));
     }
 
-    // Add marker pins
+    // Add Google Maps-style marker pins
     final pinAnnotations = stops.map((stop) {
       return PointAnnotationOptions(
         geometry: Point(coordinates: Position(stop.longitude, stop.latitude)),
         image: markerImage,
-        iconSize: 1.5,
+        iconSize: 0.7,
         iconAnchor: IconAnchor.BOTTOM,
       );
     }).toList();
