@@ -17,23 +17,101 @@ class StopMapView extends StatefulWidget {
 class _StopMapViewState extends State<StopMapView> {
   MapboxMap? _mapboxMap;
   PointAnnotationManager? _annotationManager;
+  PolylineAnnotationManager? _polylineManager;
 
   void _onMapCreated(MapboxMap mapboxMap) async {
     _mapboxMap = mapboxMap;
 
-    // Create the annotation manager for markers
+    // Create annotation managers
     _annotationManager = await mapboxMap.annotations
         .createPointAnnotationManager();
+    _polylineManager = await mapboxMap.annotations
+        .createPolylineAnnotationManager();
 
-    // Store bloc reference before async gap
     if (!mounted) return;
     final stops = context.read<StopBloc>().state.stops;
     if (stops.isNotEmpty) {
       await _addMarkers(stops);
+      await _addPolyline(stops);
       await _fitBoundsToStops(stops);
     }
   }
 
+  /// Creates a beautiful white-background label image with the stop name.
+  Future<Uint8List> _createLabelImage(String label) async {
+    const double fontSize = 28.0;
+    const double paddingH = 20.0;
+    const double paddingV = 10.0;
+    const double borderRadius = 14.0;
+
+    // Measure the text
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        text: label,
+        style: const TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1A1A2E),
+          letterSpacing: 0.3,
+        ),
+      ),
+    )..layout();
+
+    final double width = textPainter.width + paddingH * 2;
+    final double height = textPainter.height + paddingV * 2;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    // Draw shadow
+    final shadowPaint = Paint()
+      ..color = const Color(0x40000000)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(2, 4, width, height),
+        const Radius.circular(borderRadius),
+      ),
+      shadowPaint,
+    );
+
+    // Draw white background
+    final bgPaint = Paint()..color = const Color(0xFFFFFFFF);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, width, height),
+        const Radius.circular(borderRadius),
+      ),
+      bgPaint,
+    );
+
+    // Draw subtle border
+    final borderPaint = Paint()
+      ..color = const Color(0x1A000000)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, width, height),
+        const Radius.circular(borderRadius),
+      ),
+      borderPaint,
+    );
+
+    // Draw text
+    textPainter.paint(canvas, const Offset(paddingH, paddingV));
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+      (width + 4).toInt(), // extra space for shadow
+      (height + 8).toInt(),
+    );
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
+  /// Creates the red location pin marker image.
   Future<Uint8List> _createMarkerImage() async {
     const size = 48.0;
     final recorder = ui.PictureRecorder();
@@ -63,30 +141,63 @@ class _StopMapViewState extends State<StopMapView> {
 
     final markerImage = await _createMarkerImage();
 
-    final annotations = stops.map((stop) {
+    // Create label images for each stop
+    final labelImages = <Uint8List>[];
+    for (final stop in stops) {
+      labelImages.add(await _createLabelImage(stop.name));
+    }
+
+    // Add marker pins
+    final pinAnnotations = stops.map((stop) {
       return PointAnnotationOptions(
         geometry: Point(coordinates: Position(stop.longitude, stop.latitude)),
         image: markerImage,
-        iconSize: 1.50,
-        textField: stop.name,
-        textOffset: [0, 1.5],
-        textSize: 16.0,
-        textLetterSpacing: 0.15,
-
-        textColor: Colors.black.toARGB32(),
-        textHaloColor: Colors.black.toARGB32(),
-        textHaloWidth: 1.5,
+        iconSize: 1.5,
+        iconAnchor: IconAnchor.BOTTOM,
       );
     }).toList();
+    await _annotationManager!.createMulti(pinAnnotations);
 
-    await _annotationManager!.createMulti(annotations);
+    // Add white-background label annotations above pins
+    final labelAnnotations = <PointAnnotationOptions>[];
+    for (int i = 0; i < stops.length; i++) {
+      labelAnnotations.add(
+        PointAnnotationOptions(
+          geometry: Point(
+            coordinates: Position(stops[i].longitude, stops[i].latitude),
+          ),
+          image: labelImages[i],
+          iconSize: 0.65,
+          iconAnchor: IconAnchor.BOTTOM,
+          iconOffset: [0, -50],
+        ),
+      );
+    }
+    await _annotationManager!.createMulti(labelAnnotations);
+  }
+
+  /// Draws a polyline connecting all stops in order.
+  Future<void> _addPolyline(List<Stop> stops) async {
+    if (_polylineManager == null || stops.length < 2) return;
+
+    final coordinates = stops
+        .map((stop) => Position(stop.longitude, stop.latitude))
+        .toList();
+
+    await _polylineManager!.create(
+      PolylineAnnotationOptions(
+        geometry: LineString(coordinates: coordinates),
+        lineColor: const Color(0xFF4A90D9).value,
+        lineWidth: 3.5,
+        lineOpacity: 0.85,
+      ),
+    );
   }
 
   Future<void> _fitBoundsToStops(List<Stop> stops) async {
     if (_mapboxMap == null || stops.isEmpty) return;
 
     if (stops.length == 1) {
-      // Single stop — just fly to it
       await _mapboxMap!.flyTo(
         CameraOptions(
           center: Point(
@@ -99,7 +210,6 @@ class _StopMapViewState extends State<StopMapView> {
       return;
     }
 
-    // Calculate bounds
     double minLat = stops.first.latitude;
     double maxLat = stops.first.latitude;
     double minLng = stops.first.longitude;
@@ -146,7 +256,6 @@ class _StopMapViewState extends State<StopMapView> {
           return const Center(child: Text('No stops found.'));
         }
 
-        // Default center on Pakistan
         final initialLat = state.stops.first.latitude;
         final initialLng = state.stops.first.longitude;
 
