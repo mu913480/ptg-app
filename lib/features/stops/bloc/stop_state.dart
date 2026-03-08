@@ -7,7 +7,7 @@ class StopState {
   final bool isMapview;
   final int? currentStop;
   final bool isLoading;
-  final String selectedTileId;
+  final String mapStyle;
   final List<List<double>> routeCoordinates;
   final bool isRouteLoading;
 
@@ -18,7 +18,7 @@ class StopState {
     this.isMapview = true,
     this.currentStop,
     this.isLoading = false,
-    this.selectedTileId = 'cartodb_voyager',
+    this.mapStyle = 'mapbox://styles/mapbox/streets-v12',
     this.routeCoordinates = const [],
     this.isRouteLoading = false,
   });
@@ -30,7 +30,7 @@ class StopState {
     bool? isMapview,
     int? currentStop,
     bool? isLoading,
-    String? selectedTileId,
+    String? mapStyle,
     List<List<double>>? routeCoordinates,
     bool? isRouteLoading,
   }) {
@@ -41,7 +41,7 @@ class StopState {
       isMapview: isMapview ?? this.isMapview,
       currentStop: currentStop ?? this.currentStop,
       isLoading: isLoading ?? this.isLoading,
-      selectedTileId: selectedTileId ?? this.selectedTileId,
+      mapStyle: mapStyle ?? this.mapStyle,
       routeCoordinates: routeCoordinates ?? this.routeCoordinates,
       isRouteLoading: isRouteLoading ?? this.isRouteLoading,
     );

@@ -18,6 +18,13 @@ class _StopMapViewState extends State<StopMapView> {
   MapboxMap? _mapboxMap;
   PointAnnotationManager? _annotationManager;
   PolylineAnnotationManager? _polylineManager;
+  String _currentMapStyle = 'mapbox://styles/mapbox/streets-v12';
+
+  @override
+  void initState() {
+    super.initState();
+    _currentMapStyle = context.read<StopBloc>().state.mapStyle;
+  }
 
   void _onMapCreated(MapboxMap mapboxMap) async {
     _mapboxMap = mapboxMap;
@@ -155,9 +162,13 @@ class _StopMapViewState extends State<StopMapView> {
   Widget build(BuildContext context) {
     return BlocConsumer<StopBloc, StopState>(
       listenWhen: (previous, current) =>
-          previous.routeCoordinates != current.routeCoordinates,
+          previous.routeCoordinates != current.routeCoordinates ||
+          previous.mapStyle != current.mapStyle,
       listener: (context, state) {
-        if (state.routeCoordinates.isNotEmpty) {
+        if (_currentMapStyle != state.mapStyle) {
+          _currentMapStyle = state.mapStyle;
+          _mapboxMap?.loadStyleURI(state.mapStyle);
+        } else if (state.routeCoordinates.isNotEmpty) {
           _drawRoutePolyline(state.routeCoordinates);
         }
       },
@@ -182,6 +193,7 @@ class _StopMapViewState extends State<StopMapView> {
             center: Point(coordinates: Position(initialLng, initialLat)),
             zoom: 5.0,
           ),
+          styleUri: state.mapStyle,
           onMapCreated: _onMapCreated,
         );
       },

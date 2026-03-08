@@ -21,6 +21,7 @@ class ToursBloc extends Bloc<ToursEvent, ToursState> {
     emit(ToursLoading());
     await _databaseService.getRecords<Tour>(
       tableName: "tour",
+
       select: "*, tour_images(image_url), city(name, state(name)), stop(count)",
       fromJson: Tour.fromJson,
       onError: (e) {

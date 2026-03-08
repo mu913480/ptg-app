@@ -19,20 +19,18 @@ class StopBloc extends Bloc<StopEvent, StopState> {
        super(StopState()) {
     on<LoadStops>(_onLoadStops);
     on<ToggleMapView>(_onToggleMapView);
-    on<ChangeTileProvider>(_onChangeTileProvider);
+    on<ChangeMapStyle>(_onChangeMapStyle);
     on<LoadRoutePolyline>(_onLoadRoutePolyline);
   }
 
-  void _onChangeTileProvider(
-    ChangeTileProvider event,
-    Emitter<StopState> emit,
-  ) {
-    emit(state.copyWith(selectedTileId: event.providerId));
+  void _onChangeMapStyle(ChangeMapStyle event, Emitter<StopState> emit) {
+    emit(state.copyWith(mapStyle: event.styleUri));
   }
 
   Future<void> _onLoadStops(LoadStops event, Emitter<StopState> emit) async {
     await _databaseService.getRecords<Stop>(
       tableName: 'stop',
+      orderBy: "no",
       onLoading: () => emit(state.copyWith(isLoading: true)),
       onSuccess: (data) => emit(state.copyWith(stops: data, isLoading: false)),
       onError: (error) => emit(
@@ -44,7 +42,6 @@ class StopBloc extends Bloc<StopEvent, StopState> {
       filter: (query) => query
           .eq('tour_id', event.tourId)
           .limit(1, referencedTable: 'stop_images'),
-      orderBy: 'name',
       ascending: true,
     );
   }
