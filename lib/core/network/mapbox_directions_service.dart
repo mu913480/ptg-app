@@ -55,8 +55,7 @@ class MapboxDirectionsService {
         .join(';');
 
     final uri = Uri.parse(
-      '$_baseUrl/driving/$coordinates'
-      '?geometries=geojson&overview=full&access_token=$accessToken',
+      '$_baseUrl/walking/$coordinates?geometries=geojson&overview=full&access_token=$accessToken',
     );
 
     final client = HttpClient();
