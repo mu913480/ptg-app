@@ -1,17 +1,177 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:ptg/features/stops/bloc/stop_bloc.dart';
-import 'package:ptg/features/stops/widgets/tile_providers.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:ptg/features/stops/models/stop_model.dart';
+import 'package:ptg/core/utils/custom_painters/map_marker_painter.dart';
 
-class StopMapView extends StatelessWidget {
+class StopMapView extends StatefulWidget {
   const StopMapView({super.key});
 
   @override
+  State<StopMapView> createState() => _StopMapViewState();
+}
+
+class _StopMapViewState extends State<StopMapView> {
+  MapboxMap? _mapboxMap;
+  PointAnnotationManager? _annotationManager;
+  PolylineAnnotationManager? _polylineManager;
+  String _currentMapStyle = 'mapbox://styles/mapbox/streets-v12';
+
+  @override
+  void initState() {
+    super.initState();
+    _currentMapStyle = context.read<StopBloc>().state.mapStyle;
+  }
+
+  void _onMapCreated(MapboxMap mapboxMap) async {
+    _mapboxMap = mapboxMap;
+
+    // Create annotation managers
+    _annotationManager = await mapboxMap.annotations
+        .createPointAnnotationManager();
+    _polylineManager = await mapboxMap.annotations
+        .createPolylineAnnotationManager();
+
+    if (!mounted) return;
+    final state = context.read<StopBloc>().state;
+    final stops = state.stops;
+    if (stops.isNotEmpty) {
+      await _addMarkers(stops);
+      await _fitBoundsToStops(stops);
+
+      // If route is already loaded, draw it directly, else fetch it
+      if (state.routeCoordinates.isNotEmpty) {
+        await _drawRoutePolyline(state.routeCoordinates);
+      } else {
+        context.read<StopBloc>().add(LoadRoutePolyline(stops));
+      }
+    }
+  }
+
+  Future<void> _addMarkers(List<Stop> stops) async {
+    if (_annotationManager == null) return;
+
+    final markerImage = await MapMarkerPainter.createMarkerImage();
+
+    // Create label images for each stop
+    final labelImages = <Uint8List>[];
+    for (final stop in stops) {
+      labelImages.add(await MapMarkerPainter.createLabelImage(stop.name));
+    }
+
+    // Add Google Maps-style marker pins
+    final pinAnnotations = stops.map((stop) {
+      return PointAnnotationOptions(
+        geometry: Point(coordinates: Position(stop.longitude, stop.latitude)),
+        image: markerImage,
+        iconSize: 0.7,
+        iconAnchor: IconAnchor.BOTTOM,
+      );
+    }).toList();
+    await _annotationManager!.createMulti(pinAnnotations);
+
+    // Add white-background label annotations above pins
+    final labelAnnotations = <PointAnnotationOptions>[];
+    for (int i = 0; i < stops.length; i++) {
+      labelAnnotations.add(
+        PointAnnotationOptions(
+          geometry: Point(
+            coordinates: Position(stops[i].longitude, stops[i].latitude),
+          ),
+          image: labelImages[i],
+          iconSize: 0.65,
+          iconAnchor: IconAnchor.BOTTOM,
+          iconOffset: [0, -50],
+        ),
+      );
+    }
+    await _annotationManager!.createMulti(labelAnnotations);
+  }
+
+  /// Draws a polyline using exact road coordinates.
+  Future<void> _drawRoutePolyline(List<List<double>> routeCoords) async {
+    if (_polylineManager == null || routeCoords.length < 2) return;
+
+    // Clear existing polylines
+    await _polylineManager!.deleteAll();
+
+    final coordinates = routeCoords
+        .map((coord) => Position(coord[0], coord[1]))
+        .toList();
+
+    await _polylineManager!.create(
+      PolylineAnnotationOptions(
+        geometry: LineString(coordinates: coordinates),
+        lineColor: const Color(0xFF4A90D9).value,
+        lineWidth: 3.5,
+        lineOpacity: 0.85,
+      ),
+    );
+  }
+
+  Future<void> _fitBoundsToStops(List<Stop> stops) async {
+    if (_mapboxMap == null || stops.isEmpty) return;
+
+    if (stops.length == 1) {
+      await _mapboxMap!.flyTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(stops.first.longitude, stops.first.latitude),
+          ),
+          zoom: 14.0,
+        ),
+        MapAnimationOptions(duration: 1000),
+      );
+      return;
+    }
+
+    double minLat = stops.first.latitude;
+    double maxLat = stops.first.latitude;
+    double minLng = stops.first.longitude;
+    double maxLng = stops.first.longitude;
+
+    for (final stop in stops) {
+      if (stop.latitude < minLat) minLat = stop.latitude;
+      if (stop.latitude > maxLat) maxLat = stop.latitude;
+      if (stop.longitude < minLng) minLng = stop.longitude;
+      if (stop.longitude > maxLng) maxLng = stop.longitude;
+    }
+
+    final bounds = CoordinateBounds(
+      southwest: Point(coordinates: Position(minLng, minLat)),
+      northeast: Point(coordinates: Position(maxLng, maxLat)),
+      infiniteBounds: false,
+    );
+
+    final camera = await _mapboxMap!.cameraForCoordinateBounds(
+      bounds,
+      MbxEdgeInsets(top: 80, left: 80, bottom: 80, right: 80),
+      null,
+      null,
+      null,
+      null,
+    );
+
+    await _mapboxMap!.flyTo(camera, MapAnimationOptions(duration: 1000));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<StopBloc, StopState>(
+    return BlocConsumer<StopBloc, StopState>(
+      listenWhen: (previous, current) =>
+          previous.routeCoordinates != current.routeCoordinates ||
+          previous.mapStyle != current.mapStyle,
+      listener: (context, state) {
+        if (_currentMapStyle != state.mapStyle) {
+          _currentMapStyle = state.mapStyle;
+          _mapboxMap?.loadStyleURI(state.mapStyle);
+        } else if (state.routeCoordinates.isNotEmpty) {
+          _drawRoutePolyline(state.routeCoordinates);
+        }
+      },
       builder: (context, state) {
         if (state.isLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -25,124 +185,16 @@ class StopMapView extends StatelessWidget {
           return const Center(child: Text('No stops found.'));
         }
 
-        final markers = state.stops.map((stop) {
-          return Marker(
-            point: LatLng(stop.latitude, stop.longitude),
-            width: 80,
-            height: 80,
-            child: Column(
-              children: [
-                const Icon(Icons.location_on, color: Colors.red, size: 40),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 4),
-                    ],
-                  ),
-                  child: Text(
-                    stop.name,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList();
+        final initialLat = state.stops.first.latitude;
+        final initialLng = state.stops.first.longitude;
 
-        // Calculate initial center (average of all stops)
-        double avgLat = 0;
-        double avgLng = 0;
-        for (var stop in state.stops) {
-          avgLat += stop.latitude;
-          avgLng += stop.longitude;
-        }
-        avgLat /= state.stops.length;
-        avgLng /= state.stops.length;
-
-        return Stack(
-          children: [
-            FlutterMap(
-              options: MapOptions(
-                initialCenter: LatLng(avgLat, avgLng),
-                initialZoom: 13,
-              ),
-              children: [
-                if (AvailableTileProviders.providers.containsKey(
-                  state.selectedTileId,
-                ))
-                  FutureBuilder(
-                    future: getDownloadsDirectory(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return AvailableTileProviders
-                            .providers[state.selectedTileId]!
-                            .toFlutterMapTileLayer(path: snapshot.data!.path);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                MarkerLayer(markers: markers),
-              ],
-            ),
-            Positioned(
-              top: 10,
-              left: 0,
-              right: 0,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children:
-                      [
-                        'cartodb_voyager',
-                        'google_satellite',
-                        'google_terrain',
-                        'google_hybrid',
-                        'cyclosm',
-                        'humanitarian',
-                      ].map((id) {
-                        final info = AvailableTileProviders.providers[id];
-                        if (info == null) return const SizedBox.shrink();
-                        final isSelected = state.selectedTileId == id;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(
-                              info.name,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.black87,
-                                fontSize: 12,
-                              ),
-                            ),
-                            selected: isSelected,
-                            selectedColor: Theme.of(context).primaryColor,
-                            backgroundColor: Colors.white.withAlpha(230),
-                            onSelected: (selected) {
-                              if (selected) {
-                                context.read<StopBloc>().add(
-                                  ChangeTileProvider(id),
-                                );
-                              }
-                            },
-                          ),
-                        );
-                      }).toList(),
-                ),
-              ),
-            ),
-          ],
+        return MapWidget(
+          cameraOptions: CameraOptions(
+            center: Point(coordinates: Position(initialLng, initialLat)),
+            zoom: 5.0,
+          ),
+          styleUri: state.mapStyle,
+          onMapCreated: _onMapCreated,
         );
       },
     );

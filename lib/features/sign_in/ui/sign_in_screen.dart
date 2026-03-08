@@ -5,6 +5,7 @@ import 'package:ptg/core/utils/routes/routes.dart';
 import 'package:ptg/features/sign_in/bloc/login_bloc.dart';
 import 'package:ptg/features/sign_in/bloc/login_event.dart';
 import 'package:ptg/features/sign_in/bloc/login_state.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -14,9 +15,9 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final _emailController = TextEditingController();
+  final _emailController = TextEditingController(text: 'jkl@jkl.com');
 
-  final _passwordController = TextEditingController();
+  final _passwordController = TextEditingController(text: 'jkljkljkl');
 
   final formkey = GlobalKey<FormState>();
 
@@ -36,6 +37,21 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _onGooglePressed(BuildContext context) {
     context.read<LoginBloc>().add(const LoginGoogleSubmitted());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _setListenerForAuthChanges();
+  }
+
+  void _setListenerForAuthChanges() {
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final session = data.session;
+      if (session == null) {
+        if (mounted) context.go(AppRoutes.login);
+      }
+    });
   }
 
   @override

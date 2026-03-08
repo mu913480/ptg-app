@@ -46,6 +46,7 @@ dependencies:
   http_cache_drift_store: ^7.0.0
   sqlite3_flutter_libs: ^0.5.41
   google_sign_in: ^7.2.0
+  mapbox_maps_flutter: ^2.18.0
 
 dev_dependencies:
   flutter_test:

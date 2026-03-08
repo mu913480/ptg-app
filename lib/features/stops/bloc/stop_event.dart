@@ -10,7 +10,12 @@ class LoadStops extends StopEvent {
 
 class ToggleMapView extends StopEvent {}
 
-class ChangeTileProvider extends StopEvent {
-  final String providerId;
-  ChangeTileProvider(this.providerId);
+class ChangeMapStyle extends StopEvent {
+  final String styleUri;
+  ChangeMapStyle(this.styleUri);
+}
+
+class LoadRoutePolyline extends StopEvent {
+  final List<Stop> stops;
+  LoadRoutePolyline(this.stops);
 }

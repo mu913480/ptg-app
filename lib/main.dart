@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:ptg/core/config/app_config.dart';
 import 'package:ptg/core/config/theme.dart';
 import 'package:ptg/core/config/util.dart';
@@ -23,6 +24,7 @@ void main() async {
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
   );
+  MapboxOptions.setAccessToken(AppConfig.mapboxAccessToken);
 
   // Initialize Google Sign-in exactly once
   await GoogleSignIn.instance.initialize(

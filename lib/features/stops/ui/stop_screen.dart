@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ptg/features/stops/bloc/stop_bloc.dart';
 import 'package:ptg/features/stops/widgets/stop_listview.dart';
 import 'package:ptg/features/stops/widgets/stop_mapview.dart';
+import 'package:ptg/features/stops/widgets/map_style_toggle.dart';
 
 class StopScreen extends StatefulWidget {
   final String tourId;
-
   const StopScreen({super.key, required this.tourId});
 
   @override
@@ -47,7 +48,25 @@ class _StopScreenState extends State<StopScreen> {
               ),
             ],
           ),
-          body: state.isMapview ? const StopMapView() : const StopListView(),
+          body: state.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : state.isMapview
+              ? Stack(
+                  children: [
+                    const StopMapView(),
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: MapStyleToggle(
+                        currentStyle: state.mapStyle,
+                        onStyleChanged: (style) {
+                          context.read<StopBloc>().add(ChangeMapStyle(style));
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : const StopListView(),
         );
       },
     );
