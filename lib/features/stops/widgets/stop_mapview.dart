@@ -29,11 +29,18 @@ class _StopMapViewState extends State<StopMapView> {
         .createPolylineAnnotationManager();
 
     if (!mounted) return;
-    final stops = context.read<StopBloc>().state.stops;
+    final state = context.read<StopBloc>().state;
+    final stops = state.stops;
     if (stops.isNotEmpty) {
       await _addMarkers(stops);
-      await _addPolyline(stops);
       await _fitBoundsToStops(stops);
+
+      // If route is already loaded, draw it directly, else fetch it
+      if (state.routeCoordinates.isNotEmpty) {
+        await _drawRoutePolyline(state.routeCoordinates);
+      } else {
+        context.read<StopBloc>().add(LoadRoutePolyline(stops));
+      }
     }
   }
 
@@ -77,12 +84,15 @@ class _StopMapViewState extends State<StopMapView> {
     await _annotationManager!.createMulti(labelAnnotations);
   }
 
-  /// Draws a polyline connecting all stops in order.
-  Future<void> _addPolyline(List<Stop> stops) async {
-    if (_polylineManager == null || stops.length < 2) return;
+  /// Draws a polyline using exact road coordinates.
+  Future<void> _drawRoutePolyline(List<List<double>> routeCoords) async {
+    if (_polylineManager == null || routeCoords.length < 2) return;
 
-    final coordinates = stops
-        .map((stop) => Position(stop.longitude, stop.latitude))
+    // Clear existing polylines
+    await _polylineManager!.deleteAll();
+
+    final coordinates = routeCoords
+        .map((coord) => Position(coord[0], coord[1]))
         .toList();
 
     await _polylineManager!.create(
@@ -143,7 +153,14 @@ class _StopMapViewState extends State<StopMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<StopBloc, StopState>(
+    return BlocConsumer<StopBloc, StopState>(
+      listenWhen: (previous, current) =>
+          previous.routeCoordinates != current.routeCoordinates,
+      listener: (context, state) {
+        if (state.routeCoordinates.isNotEmpty) {
+          _drawRoutePolyline(state.routeCoordinates);
+        }
+      },
       builder: (context, state) {
         if (state.isLoading) {
           return const Center(child: CircularProgressIndicator());

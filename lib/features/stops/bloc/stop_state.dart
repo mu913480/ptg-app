@@ -4,10 +4,12 @@ class StopState {
   final List<Stop> stops;
   final String error;
   final int currentPage;
-  final isMapview;
+  final bool isMapview;
   final int? currentStop;
   final bool isLoading;
   final String selectedTileId;
+  final List<List<double>> routeCoordinates;
+  final bool isRouteLoading;
 
   StopState({
     this.currentPage = 1,
@@ -17,6 +19,8 @@ class StopState {
     this.currentStop,
     this.isLoading = false,
     this.selectedTileId = 'cartodb_voyager',
+    this.routeCoordinates = const [],
+    this.isRouteLoading = false,
   });
 
   StopState copyWith({
@@ -27,6 +31,8 @@ class StopState {
     int? currentStop,
     bool? isLoading,
     String? selectedTileId,
+    List<List<double>>? routeCoordinates,
+    bool? isRouteLoading,
   }) {
     return StopState(
       stops: stops ?? this.stops,
@@ -36,6 +42,8 @@ class StopState {
       currentStop: currentStop ?? this.currentStop,
       isLoading: isLoading ?? this.isLoading,
       selectedTileId: selectedTileId ?? this.selectedTileId,
+      routeCoordinates: routeCoordinates ?? this.routeCoordinates,
+      isRouteLoading: isRouteLoading ?? this.isRouteLoading,
     );
   }
 }

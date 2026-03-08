@@ -14,3 +14,8 @@ class ChangeTileProvider extends StopEvent {
   final String providerId;
   ChangeTileProvider(this.providerId);
 }
+
+class LoadRoutePolyline extends StopEvent {
+  final List<Stop> stops;
+  LoadRoutePolyline(this.stops);
+}
